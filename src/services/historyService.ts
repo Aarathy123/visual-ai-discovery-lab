@@ -28,10 +28,16 @@ export class HistoryService {
   static async deleteHistoryItem(itemId: string): Promise<ApiResponse<{ success: boolean }>> {
     return api.delete<{ success: boolean }>(`${HistoryService.BASE_ENDPOINT}/${itemId}`);
   }
+
+  // Get project details by UUID
+  static async getProjectDetails(uuid: string): Promise<ApiResponse<HistoryItem>> {
+    return api.get<HistoryItem>(`${HistoryService.BASE_ENDPOINT}/${uuid}`);
+  }
 }
 
 // Export convenience functions
 export const historyService = {
   getHistory: HistoryService.getHistory,
   deleteHistoryItem: HistoryService.deleteHistoryItem,
+  getProjectDetails: HistoryService.getProjectDetails,
 }; 

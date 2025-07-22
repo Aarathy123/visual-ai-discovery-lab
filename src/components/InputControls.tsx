@@ -10,11 +10,7 @@ import { cn } from "@/lib/utils";
 import { ContentType, InputFormat } from "@/types/content";
 import { contentGenerationService } from "@/services/contentGenerationService";
 import { ApiError } from "@/lib/api";
-
-interface InputControlsProps {
-  selectedContentType: string;
-  onContentTypeChange: (type: string) => void;
-}
+import { useHomeView } from "@/contexts/HomeViewContext";
 
 const contentTypes = [
   { id: ContentType.INFO_GRAPHICS, label: "Info Graphics", icon: BarChart3 },
@@ -27,12 +23,8 @@ const contentTypes = [
   { id: ContentType.SOCIAL_MEDIA_POST, label: "Social Media Post", icon: Share2 },
 ];
 
-export const InputControls = ({ selectedContentType, onContentTypeChange }: InputControlsProps) => {
-  const [inputText, setInputText] = useState("");
-  const [inputUrl, setInputUrl] = useState("");
-  const [activeTab, setActiveTab] = useState<InputFormat>(InputFormat.TEXT);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const InputControls = () => {
+  const { state, actions } = useHomeView();
 
   const getContentTypeLabel = (type: string) => {
     const found = contentTypes.find(ct => ct.id === type);
@@ -41,30 +33,30 @@ export const InputControls = ({ selectedContentType, onContentTypeChange }: Inpu
 
   const handleGenerate = async () => {
     try {
-      setIsGenerating(true);
-      setError(null);
+      actions.setIsGenerating(true);
+      actions.setError(null);
 
       // Validate input based on active tab
-      if (activeTab === InputFormat.URL && !inputUrl.trim()) {
-        setError('Please enter a URL');
+      if (state.activeTab === InputFormat.URL && !state.inputUrl.trim()) {
+        actions.setError('Please enter a URL');
         return;
       }
-      if (activeTab === InputFormat.TEXT && !inputText.trim()) {
-        setError('Please enter some text');
+      if (state.activeTab === InputFormat.TEXT && !state.inputText.trim()) {
+        actions.setError('Please enter some text');
         return;
       }
-      if (activeTab === InputFormat.FILE) {
-        setError('File upload not implemented yet');
+      if (state.activeTab === InputFormat.FILE) {
+        actions.setError('File upload not implemented yet');
         return;
       }
 
       // Make API call based on input format
       const response = await contentGenerationService.generateContent(
-        selectedContentType as ContentType,
-        activeTab,
+        state.selectedContentType as ContentType,
+        state.activeTab,
         {
-          url: inputUrl,
-          text: inputText,
+          url: state.inputUrl,
+          text: state.inputText,
         }
       );
 
@@ -75,10 +67,10 @@ export const InputControls = ({ selectedContentType, onContentTypeChange }: Inpu
       
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Failed to generate content');
+      actions.setError(apiError.message || 'Failed to generate content');
       console.error('Error generating content:', apiError);
     } finally {
-      setIsGenerating(false);
+      actions.setIsGenerating(false);
     }
   };
 
@@ -90,7 +82,7 @@ export const InputControls = ({ selectedContentType, onContentTypeChange }: Inpu
         <div className="grid grid-cols-2 gap-3">
           {contentTypes.map((type) => {
             const Icon = type.icon;
-            const isSelected = selectedContentType === type.id;
+            const isSelected = state.selectedContentType === type.id;
             
             return (
               <Button
@@ -102,7 +94,7 @@ export const InputControls = ({ selectedContentType, onContentTypeChange }: Inpu
                     ? "border-orange bg-orange/5 text-orange hover:bg-orange/10" 
                     : "border-border hover:border-primary/30 hover:bg-primary/5"
                 )}
-                onClick={() => onContentTypeChange(type.id)}
+                onClick={() => actions.setSelectedContentType(type.id)}
               >
                 <Icon className="w-5 h-5" />
                 <span className="text-xs font-medium font-dm-sans">{type.label}</span>
@@ -115,7 +107,7 @@ export const InputControls = ({ selectedContentType, onContentTypeChange }: Inpu
       {/* Input Tabs */}
       <div className="space-y-4">
         <Label className="text-sm font-medium font-dm-sans text-foreground">Input Source</Label>
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as InputFormat)} className="w-full">
+        <Tabs value={state.activeTab} onValueChange={(value) => actions.setActiveTab(value as InputFormat)} className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-muted/30">
             <TabsTrigger value={InputFormat.TEXT} className="font-dm-sans">Text</TabsTrigger>
             <TabsTrigger value={InputFormat.URL} className="font-dm-sans">URL</TabsTrigger>
@@ -126,8 +118,8 @@ export const InputControls = ({ selectedContentType, onContentTypeChange }: Inpu
             <div className="space-y-2">
               <Textarea
                 placeholder="Enter your topic, description, or paste content here..."
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
+                value={state.inputText}
+                onChange={(e) => actions.setInputText(e.target.value)}
                 className="min-h-32 resize-none border-border focus:border-primary"
               />
             </div>
@@ -138,8 +130,8 @@ export const InputControls = ({ selectedContentType, onContentTypeChange }: Inpu
               <div className="flex gap-2">
                 <Input
                   placeholder="https://example.com"
-                  value={inputUrl}
-                  onChange={(e) => setInputUrl(e.target.value)}
+                  value={state.inputUrl}
+                  onChange={(e) => actions.setInputUrl(e.target.value)}
                   className="border-border focus:border-primary"
                 />
                 <Button size="icon" variant="outline" className="shrink-0">
@@ -164,9 +156,9 @@ export const InputControls = ({ selectedContentType, onContentTypeChange }: Inpu
       </div>
 
       {/* Error Message */}
-      {error && (
+      {state.error && (
         <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <p className="text-sm text-destructive font-dm-sans">{error}</p>
+          <p className="text-sm text-destructive font-dm-sans">{state.error}</p>
         </div>
       )}
 
@@ -175,15 +167,15 @@ export const InputControls = ({ selectedContentType, onContentTypeChange }: Inpu
         className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium font-dm-sans"
         size="lg"
         onClick={handleGenerate}
-        disabled={isGenerating}
+        disabled={state.isGenerating}
       >
-        {isGenerating ? (
+        {state.isGenerating ? (
           <>
             <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2"></div>
             Generating...
           </>
         ) : (
-          `Generate ${getContentTypeLabel(selectedContentType)}`
+          `Generate ${getContentTypeLabel(state.selectedContentType)}`
         )}
       </Button>
     </div>

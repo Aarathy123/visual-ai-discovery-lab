@@ -8,7 +8,6 @@ import { HistoryView } from "./HistoryView";
 
 export const ContentGeneratorApp = () => {
   const [credits, setCredits] = useState(150);
-  const [selectedContentType, setSelectedContentType] = useState<string>("key-points");
   const location = useLocation();
 
   const isHistoryView = location.pathname === "/history";
@@ -25,8 +24,6 @@ export const ContentGeneratorApp = () => {
             <HistoryView />
           ) : (
             <HomeView 
-              selectedContentType={selectedContentType}
-              onContentTypeChange={setSelectedContentType}
               onCreditsUsed={(amount) => setCredits(prev => Math.max(0, prev - amount))}
             />
           )}
