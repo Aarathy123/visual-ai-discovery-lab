@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Home, History } from "lucide-react";
+import { RiMenuLine, RiCloseLine, RiHomeLine, RiHistoryLine } from "@remixicon/react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -11,8 +11,8 @@ export const NavigationSidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { id: "home", label: "Home", icon: Home, path: "/" },
-    { id: "history", label: "History", icon: History, path: "/history" },
+    { id: "home", label: "Home", icon: RiHomeLine, path: "/" },
+    { id: "history", label: "History", icon: RiHistoryLine, path: "/history" },
   ];
 
   const isActive = (path: string) => {
@@ -40,7 +40,7 @@ export const NavigationSidebar = () => {
           onClick={() => setIsExpanded(!isExpanded)}
           className="h-8 w-8 hover:bg-muted"
         >
-          {isExpanded ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {isExpanded ? <RiCloseLine className="h-5 w-5" /> : <RiMenuLine className="h-5 w-5" />}
         </Button>
       </div>
 

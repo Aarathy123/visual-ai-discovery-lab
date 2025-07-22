@@ -2,7 +2,7 @@
 import { InputControls } from "./InputControls";
 import { CanvasArea } from "./CanvasArea";
 import { HomeViewProvider, useHomeView } from "@/contexts/HomeViewContext";
-import { Loader2 } from "lucide-react";
+import { RiLoaderLine } from "@remixicon/react";
 
 interface HomeViewProps {
   onCreditsUsed: (amount: number) => void;
@@ -17,7 +17,7 @@ const HomeViewContent: React.FC<HomeViewProps> = ({ onCreditsUsed }) => {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <RiLoaderLine className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
           <p className="text-muted-foreground">Loading project...</p>
         </div>
       </div>
@@ -30,7 +30,7 @@ const HomeViewContent: React.FC<HomeViewProps> = ({ onCreditsUsed }) => {
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Loader2 className="h-8 w-8 text-destructive" />
+            <RiLoaderLine className="h-8 w-8 text-destructive" />
           </div>
           <h3 className="font-sora font-medium text-foreground mb-2">Error loading project</h3>
           <p className="text-muted-foreground">{state.projectError}</p>

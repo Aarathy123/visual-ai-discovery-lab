@@ -2,17 +2,17 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash2, FileText, BarChart3, Lightbulb, FileCheck, Loader2 } from "lucide-react";
+import { RiDeleteBinLine, RiFileTextLine, RiBarChartBoxLine, RiLightbulbLine, RiFileCheckLine, RiLoaderLine } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import { historyService, HistoryItem } from "@/services/historyService";
 import { ApiError } from "@/lib/api";
 
 const contentTypeIcons = {
-  "pdf": FileText,
-  "infographics": BarChart3,
-  "key-points": Lightbulb,
-  "summary": FileCheck,
-  "visual-notes": FileText,
+  "pdf": RiFileTextLine,
+  "infographics": RiBarChartBoxLine,
+  "key-points": RiLightbulbLine,
+  "summary": RiFileCheckLine,
+  "visual-notes": RiFileTextLine,
 };
 
 const contentTypeLabels = {
@@ -94,7 +94,7 @@ export const HistoryView = () => {
           <p className="text-muted-foreground">View and manage your previous content generations</p>
         </div>
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <RiLoaderLine className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-2 text-muted-foreground">Loading history...</span>
         </div>
       </div>
@@ -110,7 +110,7 @@ export const HistoryView = () => {
         </div>
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FileText className="h-8 w-8 text-destructive" />
+            <RiFileTextLine className="h-8 w-8 text-destructive" />
           </div>
           <h3 className="font-sora font-medium text-foreground mb-2">Error loading history</h3>
           <p className="text-muted-foreground">{error}</p>
@@ -128,7 +128,7 @@ export const HistoryView = () => {
 
       <div className="space-y-4">
         {historyItems.map((item) => {
-          const Icon = contentTypeIcons[item.type as keyof typeof contentTypeIcons] || FileText;
+          const Icon = contentTypeIcons[item.type as keyof typeof contentTypeIcons] || RiFileTextLine;
           
           return (
             <Card 
@@ -156,7 +156,7 @@ export const HistoryView = () => {
                     onClick={(e) => handleDelete(e, item._id)}
                     className="text-muted-foreground hover:text-destructive"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <RiDeleteBinLine className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
@@ -167,7 +167,7 @@ export const HistoryView = () => {
         {historyItems.length === 0 && (
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <FileText className="h-8 w-8 text-muted-foreground" />
+              <RiFileTextLine className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="font-sora font-medium text-foreground mb-2">No generations yet</h3>
             <p className="text-muted-foreground">Start creating content to see your history here</p>
