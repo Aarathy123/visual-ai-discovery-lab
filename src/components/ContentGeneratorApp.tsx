@@ -1,33 +1,37 @@
 
 import { useState } from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { useLocation } from "react-router-dom";
 import { TopNavigation } from "./TopNavigation";
-import { MainSidebar } from "./MainSidebar";
-import { CanvasArea } from "./CanvasArea";
+import { NavigationSidebar } from "./NavigationSidebar";
+import { HomeView } from "./HomeView";
+import { HistoryView } from "./HistoryView";
 
 export const ContentGeneratorApp = () => {
   const [credits, setCredits] = useState(150);
-  const [selectedContentType, setSelectedContentType] = useState<string>("visual-notes");
+  const [selectedContentType, setSelectedContentType] = useState<string>("key-points");
+  const location = useLocation();
+
+  const isHistoryView = location.pathname === "/history";
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex flex-col w-full bg-background">
-        <TopNavigation credits={credits} />
+    <div className="min-h-screen flex flex-col w-full bg-background">
+      <TopNavigation credits={credits} />
+      
+      <div className="flex flex-1 w-full">
+        <NavigationSidebar />
         
-        <div className="flex flex-1 w-full">
-          <MainSidebar 
-            selectedContentType={selectedContentType}
-            onContentTypeChange={setSelectedContentType}
-          />
-          
-          <main className="flex-1 flex flex-col">
-            <CanvasArea 
-              contentType={selectedContentType}
+        <main className="flex-1 flex flex-col">
+          {isHistoryView ? (
+            <HistoryView />
+          ) : (
+            <HomeView 
+              selectedContentType={selectedContentType}
+              onContentTypeChange={setSelectedContentType}
               onCreditsUsed={(amount) => setCredits(prev => Math.max(0, prev - amount))}
             />
-          </main>
-        </div>
+          )}
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
