@@ -1,6 +1,9 @@
 import { api, ApiResponse } from '@/lib/api';
 import { ContentType, InputFormat } from '@/types/content';
 
+// Timeout for content generation requests (10 minutes)
+const CONTENT_GENERATION_TIMEOUT = 10 * 60 * 1000;
+
 // Types for content generation
 export interface ContentGenerationRequest {
   type: ContentType;
@@ -33,7 +36,9 @@ export class ContentGenerationService {
       url,
     };
 
-    return api.post<ContentGenerationResponse>(ContentGenerationService.BASE_ENDPOINT, payload);
+    return api.post<ContentGenerationResponse>(ContentGenerationService.BASE_ENDPOINT, payload, {
+      timeout: CONTENT_GENERATION_TIMEOUT,
+    });
   }
 
   // Generate content from text
@@ -46,7 +51,9 @@ export class ContentGenerationService {
       text,
     };
 
-    return api.post<ContentGenerationResponse>('/text/process', payload);
+    return api.post<ContentGenerationResponse>('/text/process', payload, {
+      timeout: CONTENT_GENERATION_TIMEOUT,
+    });
   }
 
   // Generate content from file
@@ -59,6 +66,7 @@ export class ContentGenerationService {
     formData.append('file', file);
 
     return api.post<ContentGenerationResponse>('/file/process', formData, {
+      timeout: CONTENT_GENERATION_TIMEOUT,
       headers: {
         // Remove Content-Type to let browser set it for FormData
         'Content-Type': undefined,

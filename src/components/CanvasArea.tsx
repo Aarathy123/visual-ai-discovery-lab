@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Share2, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { useHomeView } from "@/contexts/HomeViewContext";
 
 interface CanvasAreaProps {
   contentType: string;
@@ -9,7 +10,7 @@ interface CanvasAreaProps {
 }
 
 export const CanvasArea = ({ contentType, onCreditsUsed }: CanvasAreaProps) => {
-  const [isGenerating, setIsGenerating] = useState(false);
+  const { state } = useHomeView();
   const [zoom, setZoom] = useState(100);
 
   const getContentTypeLabel = (type: string) => {
@@ -60,7 +61,7 @@ export const CanvasArea = ({ contentType, onCreditsUsed }: CanvasAreaProps) => {
           className="h-full bg-white rounded-lg shadow-sm border border-border flex items-center justify-center"
           style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'center' }}
         >
-          {isGenerating ? (
+          {state.isGenerating ? (
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
               <p className="text-muted-foreground font-dm-sans">Generating your {getContentTypeLabel(contentType).toLowerCase()}...</p>
@@ -76,11 +77,7 @@ export const CanvasArea = ({ contentType, onCreditsUsed }: CanvasAreaProps) => {
               </p>
               <Button 
                 onClick={() => {
-                  setIsGenerating(true);
-                  setTimeout(() => {
-                    setIsGenerating(false);
-                    onCreditsUsed(1);
-                  }, 3000);
+                  onCreditsUsed(1);
                 }}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-dm-sans"
               >

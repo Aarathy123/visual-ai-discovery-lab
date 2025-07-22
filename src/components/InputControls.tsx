@@ -8,8 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Upload, Link, FileText, BarChart3, Lightbulb, FileCheck, Map, CreditCard, BookOpen, Image, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ContentType, InputFormat } from "@/types/content";
-import { contentGenerationService } from "@/services/contentGenerationService";
-import { ApiError } from "@/lib/api";
 import { useHomeView } from "@/contexts/HomeViewContext";
 
 const contentTypes = [
@@ -29,49 +27,6 @@ export const InputControls = () => {
   const getContentTypeLabel = (type: string) => {
     const found = contentTypes.find(ct => ct.id === type);
     return found ? found.label : "Content";
-  };
-
-  const handleGenerate = async () => {
-    try {
-      actions.setIsGenerating(true);
-      actions.setError(null);
-
-      // Validate input based on active tab
-      if (state.activeTab === InputFormat.URL && !state.inputUrl.trim()) {
-        actions.setError('Please enter a URL');
-        return;
-      }
-      if (state.activeTab === InputFormat.TEXT && !state.inputText.trim()) {
-        actions.setError('Please enter some text');
-        return;
-      }
-      if (state.activeTab === InputFormat.FILE) {
-        actions.setError('File upload not implemented yet');
-        return;
-      }
-
-      // Make API call based on input format
-      const response = await contentGenerationService.generateContent(
-        state.selectedContentType as ContentType,
-        state.activeTab,
-        {
-          url: state.inputUrl,
-          text: state.inputText,
-        }
-      );
-
-      console.log('Generation response:', response.data);
-      
-      // TODO: Handle successful generation (e.g., navigate to result page, show success message)
-      // You can add a callback prop to handle the response
-      
-    } catch (err) {
-      const apiError = err as ApiError;
-      actions.setError(apiError.message || 'Failed to generate content');
-      console.error('Error generating content:', apiError);
-    } finally {
-      actions.setIsGenerating(false);
-    }
   };
 
   return (
@@ -166,7 +121,7 @@ export const InputControls = () => {
       <Button 
         className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium font-dm-sans"
         size="lg"
-        onClick={handleGenerate}
+        onClick={actions.handleGenerate}
         disabled={state.isGenerating}
       >
         {state.isGenerating ? (

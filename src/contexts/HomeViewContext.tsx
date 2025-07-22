@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useParams } from 'react-router-dom';
 import { ContentType, InputFormat } from '@/types/content';
 import { historyService, HistoryItem } from '@/services/historyService';
+import { contentGenerationService } from '@/services/contentGenerationService';
 import { ApiError } from '@/lib/api';
 
 // Context state interface
@@ -34,6 +35,7 @@ interface HomeViewActions {
   setError: (error: string | null) => void;
   clearError: () => void;
   resetForm: () => void;
+  handleGenerate: () => Promise<void>;
 }
 
 // Combined context interface
@@ -105,6 +107,57 @@ export const HomeViewProvider: React.FC<HomeViewProviderProps> = ({ children }) 
         activeTab: InputFormat.TEXT,
         error: null,
       }));
+    },
+
+    handleGenerate: async () => {
+      try {
+        setState(prev => ({ ...prev, isGenerating: true, error: null }));
+
+        // Validate input based on active tab
+        if (state.activeTab === InputFormat.URL && !state.inputUrl.trim()) {
+          setState(prev => ({ ...prev, error: 'Please enter a URL' }));
+          return;
+        }
+        if (state.activeTab === InputFormat.TEXT && !state.inputText.trim()) {
+          setState(prev => ({ ...prev, error: 'Please enter some text' }));
+          return;
+        }
+        if (state.activeTab === InputFormat.FILE) {
+          setState(prev => ({ ...prev, error: 'File upload not implemented yet' }));
+          return;
+        }
+
+        // Make API call based on input format
+        const response = await contentGenerationService.generateContent(
+          state.selectedContentType as ContentType,
+          state.activeTab,
+          {
+            url: state.inputUrl,
+            text: state.inputText,
+          }
+        );
+
+        console.log('Generation response:', response.data);
+        
+        // Handle successful generation
+        if (response.data.status === 'completed') {
+          // TODO: Navigate to result page or show success message
+          console.log('Content generation completed successfully');
+        } else if (response.data.status === 'processing') {
+          // TODO: Implement polling mechanism for long-running tasks
+          console.log('Content generation is still processing');
+        }
+        
+      } catch (err) {
+        const apiError = err as ApiError;
+        setState(prev => ({ 
+          ...prev, 
+          error: apiError.message || 'Failed to generate content' 
+        }));
+        console.error('Error generating content:', apiError);
+      } finally {
+        setState(prev => ({ ...prev, isGenerating: false }));
+      }
     },
   };
 
