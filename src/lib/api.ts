@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/';
 
 // Request timeout in milliseconds
 const REQUEST_TIMEOUT = 30000; // 30 seconds for regular requests
@@ -158,6 +158,25 @@ class ApiClient {
     });
   }
 
+  // POST FormData request (for file uploads)
+  async postFormData<T>(endpoint: string, formData: FormData, config?: RequestConfig): Promise<ApiResponse<T>> {
+    const headers = {
+      ...getDefaultHeaders(),
+      ...getAuthHeaders(),
+      ...config?.headers,
+    };
+
+    // Remove Content-Type to let browser set it for FormData
+    delete headers['Content-Type'];
+
+    return this.request<T>(endpoint, {
+      ...config,
+      method: 'POST',
+      body: formData,
+      headers,
+    });
+  }
+
   // PUT request
   async put<T>(endpoint: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
@@ -261,6 +280,7 @@ export { ApiClient };
 export const api = {
   get: <T>(endpoint: string, config?: RequestConfig) => apiClient.get<T>(endpoint, config),
   post: <T>(endpoint: string, data?: unknown, config?: RequestConfig) => apiClient.post<T>(endpoint, data, config),
+  postFormData: <T>(endpoint: string, formData: FormData, config?: RequestConfig) => apiClient.postFormData<T>(endpoint, formData, config),
   put: <T>(endpoint: string, data?: unknown, config?: RequestConfig) => apiClient.put<T>(endpoint, data, config),
   patch: <T>(endpoint: string, data?: unknown, config?: RequestConfig) => apiClient.patch<T>(endpoint, data, config),
   delete: <T>(endpoint: string, config?: RequestConfig) => apiClient.delete<T>(endpoint, config),

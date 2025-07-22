@@ -86,7 +86,9 @@ export const InputControls = () => {
           <TabsList className="grid w-full grid-cols-3 bg-muted/30">
             <TabsTrigger value={InputFormat.TEXT} className="font-dm-sans">Text</TabsTrigger>
             <TabsTrigger value={InputFormat.URL} className="font-dm-sans">URL</TabsTrigger>
-            <TabsTrigger value={InputFormat.FILE} className="font-dm-sans">File</TabsTrigger>
+            <TabsTrigger value={InputFormat.FILE} className="font-dm-sans">
+              File
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value={InputFormat.TEXT} className="mt-4">
@@ -117,13 +119,20 @@ export const InputControls = () => {
           </TabsContent>
           
           <TabsContent value={InputFormat.FILE} className="mt-4">
-            <div className="space-y-2">
-              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground mb-2">Drop your file here or click to browse</p>
-                <Button variant="outline" size="sm" className="font-dm-sans">
-                  Choose File
-                </Button>
+            <div className="space-y-4">
+              {/* Coming Soon - Disabled File Upload */}
+              <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
+                <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                <p className="text-sm text-muted-foreground mb-2 font-dm-sans">
+                  File Upload
+                </p>
+                <p className="text-xs text-muted-foreground mb-3 font-dm-sans">
+                  Coming Soon
+                </p>
+                <div className="inline-flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs text-muted-foreground">
+                  <RiFileCheckLine className="w-3 h-3" />
+                  Under Development
+                </div>
               </div>
             </div>
           </TabsContent>

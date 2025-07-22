@@ -13,6 +13,7 @@ interface HomeViewState {
   // Input states
   inputText: string;
   inputUrl: string;
+  selectedFile: File | null;
   activeTab: InputFormat;
   
   // Generation states
@@ -30,6 +31,7 @@ interface HomeViewActions {
   setSelectedContentType: (type: string) => void;
   setInputText: (text: string) => void;
   setInputUrl: (url: string) => void;
+  setSelectedFile: (file: File | null) => void;
   setActiveTab: (tab: InputFormat) => void;
   setIsGenerating: (generating: boolean) => void;
   setError: (error: string | null) => void;
@@ -61,6 +63,7 @@ export const HomeViewProvider: React.FC<HomeViewProviderProps> = ({ children }) 
     selectedContentType: ContentType.KEY_POINTS,
     inputText: '',
     inputUrl: '',
+    selectedFile: null,
     activeTab: InputFormat.TEXT,
     isGenerating: false,
     error: null,
@@ -81,6 +84,10 @@ export const HomeViewProvider: React.FC<HomeViewProviderProps> = ({ children }) 
     
     setInputUrl: (url: string) => {
       setState(prev => ({ ...prev, inputUrl: url }));
+    },
+    
+    setSelectedFile: (file: File | null) => {
+      setState(prev => ({ ...prev, selectedFile: file }));
     },
     
     setActiveTab: (tab: InputFormat) => {
@@ -104,6 +111,7 @@ export const HomeViewProvider: React.FC<HomeViewProviderProps> = ({ children }) 
         ...prev,
         inputText: '',
         inputUrl: '',
+        selectedFile: null,
         activeTab: InputFormat.TEXT,
         error: null,
       }));

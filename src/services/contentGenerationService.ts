@@ -24,7 +24,9 @@ export interface ContentGenerationResponse {
 
 // Content Generation Service
 export class ContentGenerationService {
-  private static readonly BASE_ENDPOINT = '/url/process';
+  private static readonly BASE_ENDPOINT_URL = '/url/process';
+  private static readonly BASE_ENDPOINT_TEXT = '/text/process';
+  private static readonly BASE_ENDPOINT_FILE = '/pdf/process';
 
   // Generate content from URL
   static async generateFromUrl(
@@ -36,7 +38,7 @@ export class ContentGenerationService {
       url,
     };
 
-    return api.post<ContentGenerationResponse>(ContentGenerationService.BASE_ENDPOINT, payload, {
+    return api.post<ContentGenerationResponse>(ContentGenerationService.BASE_ENDPOINT_URL, payload, {
       timeout: CONTENT_GENERATION_TIMEOUT,
     });
   }
@@ -68,9 +70,8 @@ export class ContentGenerationService {
     return api.post<ContentGenerationResponse>('/file/process', formData, {
       timeout: CONTENT_GENERATION_TIMEOUT,
       headers: {
-        // Remove Content-Type to let browser set it for FormData
-        'Content-Type': undefined,
-      },
+        'Content-Type': 'multipart/form-data'
+      }
     });
   }
 
