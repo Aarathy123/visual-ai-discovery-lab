@@ -141,22 +141,48 @@ export const HomeViewProvider: React.FC<HomeViewProviderProps> = ({ children }) 
         
         // Handle successful generation
         if (response.data.status === 'completed') {
-          // TODO: Navigate to result page or show success message
+          // Update projectData state with the response data (same structure as history/UUID)
+          const projectData: HistoryItem = {
+            _id: response.data.id,
+            type: response.data.type,
+            prompt: '', // Not provided in process response
+            input: state.inputText,
+            inputUrl: state.inputUrl,
+            url: '', // Not provided in process response
+            result: response.data.result || '',
+            resultUrl: response.data.resultUrl || '',
+            createdAt: response.data.createdAt,
+            updatedAt: response.data.updatedAt,
+            __v: 0, // Not provided in process response
+          };
+          
+          setState(prev => ({
+            ...prev,
+            projectData,
+            isGenerating: false,
+          }));
+          
           console.log('Content generation completed successfully');
         } else if (response.data.status === 'processing') {
           // TODO: Implement polling mechanism for long-running tasks
           console.log('Content generation is still processing');
+          setState(prev => ({ ...prev, isGenerating: false }));
+        } else if (response.data.status === 'failed') {
+          setState(prev => ({ 
+            ...prev, 
+            error: 'Content generation failed',
+            isGenerating: false 
+          }));
         }
         
       } catch (err) {
         const apiError = err as ApiError;
         setState(prev => ({ 
           ...prev, 
-          error: apiError.message || 'Failed to generate content' 
+          error: apiError.message || 'Failed to generate content',
+          isGenerating: false 
         }));
         console.error('Error generating content:', apiError);
-      } finally {
-        setState(prev => ({ ...prev, isGenerating: false }));
       }
     },
   };
