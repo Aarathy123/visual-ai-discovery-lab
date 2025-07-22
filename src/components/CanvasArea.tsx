@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Share2, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { RiDownloadLine, RiShareLine, RiZoomInLine, RiZoomOutLine, RiRestartLine } from "@remixicon/react";
 
 interface CanvasAreaProps {
   contentType: string;
@@ -35,20 +35,20 @@ export const CanvasArea = ({ contentType, onCreditsUsed }: CanvasAreaProps) => {
         
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setZoom(Math.max(25, zoom - 25))}>
-            <ZoomOut className="w-4 h-4" />
+            <RiZoomOutLine className="w-4 h-4" />
           </Button>
           <Button variant="outline" size="sm" onClick={() => setZoom(Math.min(200, zoom + 25))}>
-            <ZoomIn className="w-4 h-4" />
+            <RiZoomInLine className="w-4 h-4" />
           </Button>
           <Button variant="outline" size="sm" onClick={() => setZoom(100)}>
-            <RotateCcw className="w-4 h-4" />
+            <RiRestartLine className="w-4 h-4" />
           </Button>
           <Button variant="outline" size="sm" className="font-dm-sans">
-            <Share2 className="w-4 h-4" />
+            <RiShareLine className="w-4 h-4" />
             Share
           </Button>
           <Button variant="outline" size="sm" className="font-dm-sans">
-            <Download className="w-4 h-4" />
+            <RiDownloadLine className="w-4 h-4" />
             Export
           </Button>
         </div>

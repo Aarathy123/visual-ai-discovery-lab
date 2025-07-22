@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Link, FileText, BarChart3, Lightbulb, FileCheck, Map, CreditCard, BookOpen, Image, Share2 } from "lucide-react";
+import { RiUploadLine, RiLinksLine, RiFileTextLine, RiBarChartBoxLine, RiLightbulbLine, RiFileCheckLine, RiMapLine, RiBankCardLine, RiBookOpenLine, RiImageLine, RiShareLine } from "@remixicon/react";
 import { cn } from "@/lib/utils";
 import { ContentType, InputFormat } from "@/types/content";
 import { contentGenerationService } from "@/services/contentGenerationService";
@@ -13,14 +13,14 @@ import { ApiError } from "@/lib/api";
 import { useHomeView } from "@/contexts/HomeViewContext";
 
 const contentTypes = [
-  { id: ContentType.INFO_GRAPHICS, label: "Info Graphics", icon: BarChart3 },
-  { id: ContentType.CONCEPT_MAP, label: "Concept Map", icon: Map },
-  { id: ContentType.VISUAL_NOTES, label: "Visual Notes", icon: FileText },
-  { id: ContentType.FLASH_CARDS, label: "Flash Cards", icon: CreditCard },
-  { id: ContentType.KEY_POINTS, label: "Key Points", icon: Lightbulb },
-  { id: ContentType.SMART_SUMMARY, label: "Smart Summary", icon: BookOpen },
-  { id: ContentType.MEDIA_CAROUSELS, label: "Media Carousels", icon: Image },
-  { id: ContentType.SOCIAL_MEDIA_POST, label: "Social Media Post", icon: Share2 },
+  { id: ContentType.INFO_GRAPHICS, label: "Info Graphics", icon: RiBarChartBoxLine },
+  { id: ContentType.CONCEPT_MAP, label: "Concept Map", icon: RiMapLine },
+  { id: ContentType.VISUAL_NOTES, label: "Visual Notes", icon: RiFileTextLine },
+  { id: ContentType.FLASH_CARDS, label: "Flash Cards", icon: RiBankCardLine },
+  { id: ContentType.KEY_POINTS, label: "Key Points", icon: RiLightbulbLine },
+  { id: ContentType.SMART_SUMMARY, label: "Smart Summary", icon: RiBookOpenLine },
+  { id: ContentType.MEDIA_CAROUSELS, label: "Media Carousels", icon: RiImageLine },
+  { id: ContentType.SOCIAL_MEDIA_POST, label: "Social Media Post", icon: RiShareLine },
 ];
 
 export const InputControls = () => {
@@ -135,7 +135,7 @@ export const InputControls = () => {
                   className="border-border focus:border-primary"
                 />
                 <Button size="icon" variant="outline" className="shrink-0">
-                  <Link className="w-4 h-4" />
+                  <RiLinksLine className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -143,7 +143,7 @@ export const InputControls = () => {
           
           <TabsContent value={InputFormat.FILE} className="mt-4">
             <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-              <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+              <RiUploadLine className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
               <p className="text-sm text-muted-foreground mb-3 font-dm-sans">
                 Drop files here or click to upload
               </p>

@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, BarChart3, Lightbulb, FileCheck, MoreHorizontal } from "lucide-react";
+import { RiFileTextLine, RiBarChartBoxLine, RiLightbulbLine, RiFileCheckLine, RiMoreLine } from "@remixicon/react";
 
 const mockGenerations = [
   {
@@ -32,11 +32,11 @@ const mockGenerations = [
 
 const getIcon = (type: string) => {
   switch (type) {
-    case "visual-notes": return FileText;
-    case "infographics": return BarChart3;
-    case "key-points": return Lightbulb;
-    case "summary": return FileCheck;
-    default: return FileText;
+    case "visual-notes": return RiFileTextLine;
+    case "infographics": return RiBarChartBoxLine;
+    case "key-points": return RiLightbulbLine;
+    case "summary": return RiFileCheckLine;
+    default: return RiFileTextLine;
   }
 };
 
@@ -63,7 +63,7 @@ export const SavedGenerations = () => {
                 size="icon" 
                 className="w-6 h-6 opacity-0 group-hover:opacity-100"
               >
-                <MoreHorizontal className="w-3 h-3" />
+                <RiMoreLine className="w-3 h-3" />
               </Button>
             </div>
           );
