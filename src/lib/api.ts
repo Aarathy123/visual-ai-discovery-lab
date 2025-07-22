@@ -2,7 +2,10 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 // Request timeout in milliseconds
-const REQUEST_TIMEOUT = 30000;
+const REQUEST_TIMEOUT = 30000; // 30 seconds for regular requests
+
+// Extended timeout for long-running operations (like content generation)
+const EXTENDED_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 
 // Common headers
 const getDefaultHeaders = (): HeadersInit => ({

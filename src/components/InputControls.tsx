@@ -5,22 +5,22 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BarChart3, Map, FileText, CreditCard, Lightbulb, BookOpen, Image, Share2, Upload } from "lucide-react";
 import { RiUploadLine, RiLinksLine, RiFileTextLine, RiBarChartBoxLine, RiLightbulbLine, RiFileCheckLine, RiMapLine, RiBankCardLine, RiBookOpenLine, RiImageLine, RiShareLine } from "@remixicon/react";
 import { cn } from "@/lib/utils";
 import { ContentType, InputFormat } from "@/types/content";
-import { contentGenerationService } from "@/services/contentGenerationService";
-import { ApiError } from "@/lib/api";
 import { useHomeView } from "@/contexts/HomeViewContext";
+import { Badge } from "@/components/ui/badge";
 
 const contentTypes = [
-  { id: ContentType.INFO_GRAPHICS, label: "Info Graphics", icon: RiBarChartBoxLine },
-  { id: ContentType.CONCEPT_MAP, label: "Concept Map", icon: RiMapLine },
-  { id: ContentType.VISUAL_NOTES, label: "Visual Notes", icon: RiFileTextLine },
-  { id: ContentType.FLASH_CARDS, label: "Flash Cards", icon: RiBankCardLine },
-  { id: ContentType.KEY_POINTS, label: "Key Points", icon: RiLightbulbLine },
-  { id: ContentType.SMART_SUMMARY, label: "Smart Summary", icon: RiBookOpenLine },
-  { id: ContentType.MEDIA_CAROUSELS, label: "Media Carousels", icon: RiImageLine },
-  { id: ContentType.SOCIAL_MEDIA_POST, label: "Social Media Post", icon: RiShareLine },
+  { id: ContentType.INFO_GRAPHICS, label: "Info Graphics", icon: BarChart3, comingSoon: false },
+  { id: ContentType.CONCEPT_MAP, label: "Concept Map", icon: Map, comingSoon: true },
+  { id: ContentType.VISUAL_NOTES, label: "Visual Notes", icon: FileText, comingSoon: false },
+  { id: ContentType.FLASH_CARDS, label: "Flash Cards", icon: CreditCard, comingSoon: false },
+  { id: ContentType.KEY_POINTS, label: "Key Points", icon: Lightbulb, comingSoon: false },
+  { id: ContentType.SMART_SUMMARY, label: "Smart Summary", icon: BookOpen, comingSoon: false },
+  { id: ContentType.MEDIA_CAROUSELS, label: "Media Carousels", icon: Image, comingSoon: true },
+  { id: ContentType.SOCIAL_MEDIA_POST, label: "Social Media Post", icon: Share2, comingSoon: false },
 ];
 
 export const InputControls = () => {
@@ -31,46 +31,9 @@ export const InputControls = () => {
     return found ? found.label : "Content";
   };
 
-  const handleGenerate = async () => {
-    try {
-      actions.setIsGenerating(true);
-      actions.setError(null);
-
-      // Validate input based on active tab
-      if (state.activeTab === InputFormat.URL && !state.inputUrl.trim()) {
-        actions.setError('Please enter a URL');
-        return;
-      }
-      if (state.activeTab === InputFormat.TEXT && !state.inputText.trim()) {
-        actions.setError('Please enter some text');
-        return;
-      }
-      if (state.activeTab === InputFormat.FILE) {
-        actions.setError('File upload not implemented yet');
-        return;
-      }
-
-      // Make API call based on input format
-      const response = await contentGenerationService.generateContent(
-        state.selectedContentType as ContentType,
-        state.activeTab,
-        {
-          url: state.inputUrl,
-          text: state.inputText,
-        }
-      );
-
-      console.log('Generation response:', response.data);
-      
-      // TODO: Handle successful generation (e.g., navigate to result page, show success message)
-      // You can add a callback prop to handle the response
-      
-    } catch (err) {
-      const apiError = err as ApiError;
-      actions.setError(apiError.message || 'Failed to generate content');
-      console.error('Error generating content:', apiError);
-    } finally {
-      actions.setIsGenerating(false);
+  const handleContentTypeClick = (typeId: string, comingSoon: boolean) => {
+    if (!comingSoon) {
+      actions.setSelectedContentType(typeId);
     }
   };
 
@@ -85,20 +48,32 @@ export const InputControls = () => {
             const isSelected = state.selectedContentType === type.id;
             
             return (
-              <Button
-                key={type.id}
-                variant="outline"
-                className={cn(
-                  "h-auto p-4 flex flex-col gap-2 border-2 transition-all",
-                  isSelected 
-                    ? "border-orange bg-orange/5 text-orange hover:bg-orange/10" 
-                    : "border-border hover:border-primary/30 hover:bg-primary/5"
+              <div key={type.id} className="relative">
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "h-auto p-4 flex flex-col gap-2 border-2 transition-all w-full",
+                    type.comingSoon 
+                      ? "opacity-50 blur-[0.5px] cursor-not-allowed border-muted bg-muted/20" 
+                      : isSelected 
+                        ? "border-orange bg-orange/5 text-orange hover:bg-orange/10" 
+                        : "border-border hover:border-primary/30 hover:bg-primary/5"
+                  )}
+                  onClick={() => handleContentTypeClick(type.id, type.comingSoon)}
+                  disabled={type.comingSoon}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-xs font-medium font-dm-sans">{type.label}</span>
+                </Button>
+                
+                {type.comingSoon && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <Badge variant="secondary" className="bg-orange/90 text-white text-xs font-medium px-2 py-1">
+                      Coming Soon
+                    </Badge>
+                  </div>
                 )}
-                onClick={() => actions.setSelectedContentType(type.id)}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs font-medium font-dm-sans">{type.label}</span>
-              </Button>
+              </div>
             );
           })}
         </div>
@@ -142,42 +117,42 @@ export const InputControls = () => {
           </TabsContent>
           
           <TabsContent value={InputFormat.FILE} className="mt-4">
-            <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-              <RiUploadLine className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-3 font-dm-sans">
-                Drop files here or click to upload
-              </p>
-              <Button variant="outline" size="sm" className="font-dm-sans">
-                Choose Files
-              </Button>
+            <div className="space-y-2">
+              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground mb-2">Drop your file here or click to browse</p>
+                <Button variant="outline" size="sm" className="font-dm-sans">
+                  Choose File
+                </Button>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* Error Message */}
-      {state.error && (
-        <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <p className="text-sm text-destructive font-dm-sans">{state.error}</p>
-        </div>
-      )}
-
       {/* Generate Button */}
-      <Button 
-        className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium font-dm-sans"
-        size="lg"
-        onClick={handleGenerate}
-        disabled={state.isGenerating}
-      >
-        {state.isGenerating ? (
-          <>
-            <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2"></div>
-            Generating...
-          </>
-        ) : (
-          `Generate ${getContentTypeLabel(state.selectedContentType)}`
+      <div className="space-y-4">
+        <Button 
+          onClick={actions.handleGenerate}
+          disabled={state.isGenerating}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-dm-sans"
+        >
+          {state.isGenerating ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+              Generating...
+            </>
+          ) : (
+            `Generate ${getContentTypeLabel(state.selectedContentType)}`
+          )}
+        </Button>
+        
+        {state.error && (
+          <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+            {state.error}
+          </div>
         )}
-      </Button>
+      </div>
     </div>
   );
 };
