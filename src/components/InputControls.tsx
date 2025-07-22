@@ -9,16 +9,17 @@ import { Upload, Link, FileText, BarChart3, Lightbulb, FileCheck, Map, CreditCar
 import { cn } from "@/lib/utils";
 import { ContentType, InputFormat } from "@/types/content";
 import { useHomeView } from "@/contexts/HomeViewContext";
+import { Badge } from "@/components/ui/badge";
 
 const contentTypes = [
-  { id: ContentType.INFO_GRAPHICS, label: "Info Graphics", icon: BarChart3 },
-  { id: ContentType.CONCEPT_MAP, label: "Concept Map", icon: Map },
-  { id: ContentType.VISUAL_NOTES, label: "Visual Notes", icon: FileText },
-  { id: ContentType.FLASH_CARDS, label: "Flash Cards", icon: CreditCard },
-  { id: ContentType.KEY_POINTS, label: "Key Points", icon: Lightbulb },
-  { id: ContentType.SMART_SUMMARY, label: "Smart Summary", icon: BookOpen },
-  { id: ContentType.MEDIA_CAROUSELS, label: "Media Carousels", icon: Image },
-  { id: ContentType.SOCIAL_MEDIA_POST, label: "Social Media Post", icon: Share2 },
+  { id: ContentType.INFO_GRAPHICS, label: "Info Graphics", icon: BarChart3, comingSoon: false },
+  { id: ContentType.CONCEPT_MAP, label: "Concept Map", icon: Map, comingSoon: true },
+  { id: ContentType.VISUAL_NOTES, label: "Visual Notes", icon: FileText, comingSoon: false },
+  { id: ContentType.FLASH_CARDS, label: "Flash Cards", icon: CreditCard, comingSoon: false },
+  { id: ContentType.KEY_POINTS, label: "Key Points", icon: Lightbulb, comingSoon: false },
+  { id: ContentType.SMART_SUMMARY, label: "Smart Summary", icon: BookOpen, comingSoon: false },
+  { id: ContentType.MEDIA_CAROUSELS, label: "Media Carousels", icon: Image, comingSoon: true },
+  { id: ContentType.SOCIAL_MEDIA_POST, label: "Social Media Post", icon: Share2, comingSoon: false },
 ];
 
 export const InputControls = () => {
@@ -27,6 +28,12 @@ export const InputControls = () => {
   const getContentTypeLabel = (type: string) => {
     const found = contentTypes.find(ct => ct.id === type);
     return found ? found.label : "Content";
+  };
+
+  const handleContentTypeClick = (typeId: string, comingSoon: boolean) => {
+    if (!comingSoon) {
+      actions.setSelectedContentType(typeId);
+    }
   };
 
   return (
@@ -40,20 +47,32 @@ export const InputControls = () => {
             const isSelected = state.selectedContentType === type.id;
             
             return (
-              <Button
-                key={type.id}
-                variant="outline"
-                className={cn(
-                  "h-auto p-4 flex flex-col gap-2 border-2 transition-all",
-                  isSelected 
-                    ? "border-orange bg-orange/5 text-orange hover:bg-orange/10" 
-                    : "border-border hover:border-primary/30 hover:bg-primary/5"
+              <div key={type.id} className="relative">
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "h-auto p-4 flex flex-col gap-2 border-2 transition-all w-full",
+                    type.comingSoon 
+                      ? "opacity-50 blur-[0.5px] cursor-not-allowed border-muted bg-muted/20" 
+                      : isSelected 
+                        ? "border-orange bg-orange/5 text-orange hover:bg-orange/10" 
+                        : "border-border hover:border-primary/30 hover:bg-primary/5"
+                  )}
+                  onClick={() => handleContentTypeClick(type.id, type.comingSoon)}
+                  disabled={type.comingSoon}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-xs font-medium font-dm-sans">{type.label}</span>
+                </Button>
+                
+                {type.comingSoon && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <Badge variant="secondary" className="bg-orange/90 text-white text-xs font-medium px-2 py-1">
+                      Coming Soon
+                    </Badge>
+                  </div>
                 )}
-                onClick={() => actions.setSelectedContentType(type.id)}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs font-medium font-dm-sans">{type.label}</span>
-              </Button>
+              </div>
             );
           })}
         </div>
@@ -97,42 +116,42 @@ export const InputControls = () => {
           </TabsContent>
           
           <TabsContent value={InputFormat.FILE} className="mt-4">
-            <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-              <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground mb-3 font-dm-sans">
-                Drop files here or click to upload
-              </p>
-              <Button variant="outline" size="sm" className="font-dm-sans">
-                Choose Files
-              </Button>
+            <div className="space-y-2">
+              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground mb-2">Drop your file here or click to browse</p>
+                <Button variant="outline" size="sm" className="font-dm-sans">
+                  Choose File
+                </Button>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* Error Message */}
-      {state.error && (
-        <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <p className="text-sm text-destructive font-dm-sans">{state.error}</p>
-        </div>
-      )}
-
       {/* Generate Button */}
-      <Button 
-        className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium font-dm-sans"
-        size="lg"
-        onClick={actions.handleGenerate}
-        disabled={state.isGenerating}
-      >
-        {state.isGenerating ? (
-          <>
-            <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2"></div>
-            Generating...
-          </>
-        ) : (
-          `Generate ${getContentTypeLabel(state.selectedContentType)}`
+      <div className="space-y-4">
+        <Button 
+          onClick={actions.handleGenerate}
+          disabled={state.isGenerating}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-dm-sans"
+        >
+          {state.isGenerating ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+              Generating...
+            </>
+          ) : (
+            `Generate ${getContentTypeLabel(state.selectedContentType)}`
+          )}
+        </Button>
+        
+        {state.error && (
+          <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+            {state.error}
+          </div>
         )}
-      </Button>
+      </div>
     </div>
   );
 };
