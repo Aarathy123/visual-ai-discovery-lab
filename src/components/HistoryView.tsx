@@ -1,69 +1,123 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash2, FileText, BarChart3, Lightbulb, FileCheck } from "lucide-react";
+import { Trash2, FileText, BarChart3, Lightbulb, FileCheck, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-interface HistoryItem {
-  id: string;
-  contentType: string;
-  title: string;
-  createdAt: string;
-  counter: number;
-}
+import { historyService, HistoryItem } from "@/services/historyService";
+import { ApiError } from "@/lib/api";
 
 const contentTypeIcons = {
-  "visual-notes": FileText,
+  "pdf": FileText,
   "infographics": BarChart3,
   "key-points": Lightbulb,
   "summary": FileCheck,
+  "visual-notes": FileText,
 };
 
 const contentTypeLabels = {
-  "visual-notes": "Visual Notes",
+  "pdf": "PDF Document",
   "infographics": "Infographics", 
   "key-points": "Key Points",
   "summary": "Summary",
+  "visual-notes": "Visual Notes",
 };
 
 export const HistoryView = () => {
   const navigate = useNavigate();
-  
-  // Mock history data - will be replaced with real data management
-  const [historyItems] = useState<HistoryItem[]>([
-    {
-      id: "uuid-1",
-      contentType: "visual-notes",
-      title: "Visual Notes - 1",
-      createdAt: "2024-01-15",
-      counter: 1,
-    },
-    {
-      id: "uuid-2", 
-      contentType: "infographics",
-      title: "Infographics - 1",
-      createdAt: "2024-01-14",
-      counter: 1,
-    },
-    {
-      id: "uuid-3",
-      contentType: "visual-notes",
-      title: "Visual Notes - 2", 
-      createdAt: "2024-01-13",
-      counter: 2,
-    },
-  ]);
+  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch history data on component mount
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await historyService.getHistory();
+        setHistoryItems(response.data);
+      } catch (err) {
+        const apiError = err as ApiError;
+        setError(apiError.message || 'Failed to fetch history');
+        console.error('Error fetching history:', apiError);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, []);
 
   const handleItemClick = (item: HistoryItem) => {
-    navigate(`/project/${item.id}`);
+    navigate(`/project/${item._id}`);
   };
 
-  const handleDelete = (e: React.MouseEvent, itemId: string) => {
-    e.stopPropagation();
-    // TODO: Implement delete functionality
-    console.log("Delete item:", itemId);
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   };
+
+  // Helper function to get title from prompt or input
+  const getTitle = (item: HistoryItem) => {
+    if (item.prompt) {
+      return item.prompt.length > 50 ? item.prompt.substring(0, 50) + '...' : item.prompt;
+    }
+    if (item.input) {
+      return item.input.length > 50 ? item.input.substring(0, 50) + '...' : item.input;
+    }
+    return 'Untitled';
+  };
+
+  const handleDelete = async (e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation();
+    try {
+      await historyService.deleteHistoryItem(itemId);
+      // Remove the item from the local state
+      setHistoryItems(prev => prev.filter(item => item._id !== itemId));
+    } catch (err) {
+      const apiError = err as ApiError;
+      console.error('Error deleting item:', apiError);
+      // You might want to show a toast notification here
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="font-sora text-2xl font-semibold text-foreground mb-2">Generation History</h1>
+          <p className="text-muted-foreground">View and manage your previous content generations</p>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-muted-foreground">Loading history...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="font-sora text-2xl font-semibold text-foreground mb-2">Generation History</h1>
+          <p className="text-muted-foreground">View and manage your previous content generations</p>
+        </div>
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="h-8 w-8 text-destructive" />
+          </div>
+          <h3 className="font-sora font-medium text-foreground mb-2">Error loading history</h3>
+          <p className="text-muted-foreground">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -74,11 +128,11 @@ export const HistoryView = () => {
 
       <div className="space-y-4">
         {historyItems.map((item) => {
-          const Icon = contentTypeIcons[item.contentType as keyof typeof contentTypeIcons];
+          const Icon = contentTypeIcons[item.type as keyof typeof contentTypeIcons] || FileText;
           
           return (
             <Card 
-              key={item.id}
+              key={item._id}
               className="cursor-pointer hover:shadow-md transition-shadow"
               onClick={() => handleItemClick(item)}
             >
@@ -89,9 +143,9 @@ export const HistoryView = () => {
                       <Icon className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-sora font-medium text-foreground">{item.title}</h3>
+                      <h3 className="font-sora font-medium text-foreground">{getTitle(item)}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {contentTypeLabels[item.contentType as keyof typeof contentTypeLabels]} • {item.createdAt}
+                        {contentTypeLabels[item.type as keyof typeof contentTypeLabels] || 'Document'} • {formatDate(item.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -99,7 +153,7 @@ export const HistoryView = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={(e) => handleDelete(e, item.id)}
+                    onClick={(e) => handleDelete(e, item._id)}
                     className="text-muted-foreground hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
